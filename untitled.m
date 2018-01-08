@@ -205,6 +205,10 @@ for i=1:1:size(music_contents,1)
     mfcc_related.mfcc_delta_mean = mfcc_delta_mean;
     mfcc_related.mfcc_deltadelta_mean = mfcc_deltadelta_mean;
 
+    mfcc_related.mfcc_std = mfcc_std;
+    mfcc_related.mfcc_delta_std = mfcc_delta_std;
+    mfcc_related.mfcc_deltadelta_std = mfcc_deltadelta_std;
+
     mfcc_related.mfcc_mean_low = mfcc_mean_low;
     mfcc_related.mfcc_delta_mean_low = mfcc_delta_mean_low;
     mfcc_related.mfcc_deltadelta_mean_low = mfcc_deltadelta_mean_low;
