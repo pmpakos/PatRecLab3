@@ -453,22 +453,35 @@ clear;close all;clc;warning off;
 load 'matlab2.mat';
 %% Step 15 - Weka Data Preparation
 
-%step6 data
-fnames_mir  = fieldnames(features); fnames_mir {11} = []; fnames_mir = fnames_mir (~cellfun('isempty',fnames_mir)); %for mir features
-WekaDataPrep('activation','MIR',mir1,fnames_mir);
-WekaDataPrep('valence','MIR',mir2,fnames_mir);
+% string1 = 'valence';
+% string2 = 'MFCC';
+% string2 = 'Combined';
 
-%step7 data
-fnames_mfcc = fieldnames(features(1).mfcc_related); fnames_mfcc = repelem(fnames_mfcc,13); % for mfcc features
-WekaDataPrep('activation','MFCC',mfcc1,fnames_mfcc);
-WekaDataPrep('valence','MFCC',mfcc2,fnames_mfcc);
+fnames1 = fieldnames(features); fnames1 {11} = []; fnames1 = fnames1 (~cellfun('isempty',fnames1)); %for mir features
+fnames2 = fieldnames(features(1).mfcc_related); fnames2 = repelem(fnames2,13); % for mfcc features
+fnames3 = [fnames1 ;fnames2]; 
 
-%step6+7 data
-fnames_comb = [fnames_mir ;fnames_mfcc]; 
-WekaDataPrep('activation','Combined',comb1,fnames_comb);
-WekaDataPrep('valence','Combined',comb2,fnames_comb);
+string1 = 'activation';
+string2 = 'MIR';
+data = mir1;
+fnames = fnames1;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function Wekafid = fopen([string1,'_',string2,'_', 'Weka.arff'], 'wt' );
+fprintf(fid, ['@RELATION emotion_',string1,'\n']);
 
+for i=1:1:size(fnames,1)
+    fprintf(fid, ['@ATTRIBUTE ',fnames{i},' NUMERIC\n']);
+end
 
-%% Step 16 - Weka Classification Algorithms
+fprintf(fid, ['@ATTRIBUTE ',string1,' {-1, 1}\n']);
+fprintf(fid, '@DATA\n');
 
-%% Step 17 - 
+for i=1:1:size(data,1)
+    curr_datum = data(i,:);
+    for j=2:1:size(data,2)
+        fprintf(fid, [num2str(data(i,j)),',']);
+    end
+    fprintf(fid, [num2str(data(i,1)),'\n']);    
+end
+
+fclose(fid);
