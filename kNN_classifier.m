@@ -1,13 +1,6 @@
-function [accuracy,precision,recall,f1_score] = kNN_classifier(curr_train,curr_test,flag,curr_ind,k_fold,k_nn)
-    if (flag==0) % used for hyperparameter evaluation
-        curr_ind1 = find(curr_ind~= k_fold);
-        curr_ind2 = find(curr_ind== k_fold);
-        curr_eval = curr_train(curr_ind2,:); %evaluation set
-        curr_train = curr_train(curr_ind1,:);
-        [C,~] = K_Nearest_Neighbors(k_nn,curr_train,curr_eval);
-    else
-        [C,~] = K_Nearest_Neighbors(k_nn,curr_train,curr_test);
-    end
+function [accuracy,precision,recall,f1_score] = kNN_classifier(curr_train,curr_test,k_nn)
+    [C,~] = K_Nearest_Neighbors(k_nn,curr_train,curr_test);
+    
     TP = C(1,1);
     FP = C(1,2);
     FN = C(2,1);

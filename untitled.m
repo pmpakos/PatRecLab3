@@ -311,76 +311,59 @@ end
 
 
 %% Step 12 - kNN Classifier
-%activation
-[mir1_train,mir1_test]= SplTrainTestData(mir1,0.2);
-[mfcc1_train,mfcc1_test]= SplTrainTestData(mfcc1,0.2);
-[comb1_train,comb1_test]= SplTrainTestData(comb1,0.2);
-indices1 = crossvalind('KFold',size(mir1_train,1),3);
-
-%valence
-[mir2_train,mir2_test]= SplTrainTestData(mir2,0.2);
-[mfcc2_train,mfcc2_test]= SplTrainTestData(mfcc2,0.2);
-[comb2_train,comb2_test]= SplTrainTestData(comb2,0.2);
-indices2 = crossvalind('KFold',size(mir2_train,1),3);
+accuracy_activ_mir = [] ; precision_activ_mir = [] ; recall_activ_mir = [] ; f1_score_activ_mir = []; accuracy_activ_mfcc = [] ; precision_activ_mfcc = [] ; recall_activ_mfcc = [] ; f1_score_activ_mfcc = []; accuracy_activ_comb = [] ; precision_activ_comb = [] ; recall_activ_comb = [] ; f1_score_activ_comb = [];
+accuracy_val_mir = []   ; precision_val_mir = []   ; recall_val_mir = []   ; f1_score_val_mir = []  ; accuracy_val_mfcc = []   ; precision_val_mfcc = []   ; recall_val_mfcc = []   ; f1_score_val_mfcc = []  ; accuracy_val_comb = []   ; precision_val_comb = []   ; recall_val_comb = []   ; f1_score_val_comb = [];
 
 cnt = 0;
 for k_nn=1:2:13
     cnt=cnt+1;
     for k_fold=1:1:3
         %activation
-        [accuracy_activ_mir(cnt,k_fold), precision_activ_mir(cnt,k_fold), recall_activ_mir(cnt,k_fold), f1_score_activ_mir(cnt,k_fold)]  = kNN_classifier(mir1_train, [],0,indices1,k_fold,k_nn);
-        [accuracy_activ_mfcc(cnt,k_fold),precision_activ_mfcc(cnt,k_fold),recall_activ_mfcc(cnt,k_fold),f1_score_activ_mfcc(cnt,k_fold)] = kNN_classifier(mfcc1_train,[],0,indices1,k_fold,k_nn);
-        [accuracy_activ_comb(cnt,k_fold),precision_activ_comb(cnt,k_fold),recall_activ_comb(cnt,k_fold),f1_score_activ_comb(cnt,k_fold)] = kNN_classifier(comb1_train,[],0,indices1,k_fold,k_nn);
+        [mir1_train,mir1_test]= SplTrainTestData(mir1,0.2);
+        [mfcc1_train,mfcc1_test]= SplTrainTestData(mfcc1,0.2);
+        [comb1_train,comb1_test]= SplTrainTestData(comb1,0.2);
 
         %valence
-        [accuracy_val_mir(cnt,k_fold), precision_val_mir(cnt,k_fold), recall_val_mir(cnt,k_fold), f1_score_val_mir(cnt,k_fold)]  = kNN_classifier(mir2_train, [],0,indices2,k_fold,k_nn);
-        [accuracy_val_mfcc(cnt,k_fold),precision_val_mfcc(cnt,k_fold),recall_val_mfcc(cnt,k_fold),f1_score_val_mfcc(cnt,k_fold)] = kNN_classifier(mfcc2_train,[],0,indices2,k_fold,k_nn);
-        [accuracy_val_comb(cnt,k_fold),precision_val_comb(cnt,k_fold),recall_val_comb(cnt,k_fold),f1_score_val_comb(cnt,k_fold)] = kNN_classifier(comb2_train,[],0,indices2,k_fold,k_nn);
+        [mir2_train,mir2_test]= SplTrainTestData(mir2,0.2);
+        [mfcc2_train,mfcc2_test]= SplTrainTestData(mfcc2,0.2);
+        [comb2_train,comb2_test]= SplTrainTestData(comb2,0.2);
         
+        %activation
+        [accuracy_activ_mir(cnt,k_fold), precision_activ_mir(cnt,k_fold), recall_activ_mir(cnt,k_fold), f1_score_activ_mir(cnt,k_fold)]  = kNN_classifier(mir1_train, mir1_test, k_nn);
+        [accuracy_activ_mfcc(cnt,k_fold),precision_activ_mfcc(cnt,k_fold),recall_activ_mfcc(cnt,k_fold),f1_score_activ_mfcc(cnt,k_fold)] = kNN_classifier(mfcc1_train,mfcc1_test,k_nn);
+        [accuracy_activ_comb(cnt,k_fold),precision_activ_comb(cnt,k_fold),recall_activ_comb(cnt,k_fold),f1_score_activ_comb(cnt,k_fold)] = kNN_classifier(comb1_train,comb1_test,k_nn);
+
+        %valence
+        [accuracy_val_mir(cnt,k_fold), precision_val_mir(cnt,k_fold), recall_val_mir(cnt,k_fold), f1_score_val_mir(cnt,k_fold)]  = kNN_classifier(mir2_train, mir2_test, k_nn);
+        [accuracy_val_mfcc(cnt,k_fold),precision_val_mfcc(cnt,k_fold),recall_val_mfcc(cnt,k_fold),f1_score_val_mfcc(cnt,k_fold)] = kNN_classifier(mfcc2_train,mfcc2_test,k_nn);
+        [accuracy_val_comb(cnt,k_fold),precision_val_comb(cnt,k_fold),recall_val_comb(cnt,k_fold),f1_score_val_comb(cnt,k_fold)] = kNN_classifier(comb2_train,comb2_test,k_nn);
     end
 end
-% keep k_nn that maximizes accuracy on training set, so as to test in on test set
-acc_act_mir_mean  = mean(accuracy_activ_mir,2);
-acc_act_mfcc_mean = mean(accuracy_activ_mfcc,2);
-acc_act_comb_mean = mean(accuracy_activ_comb,2);
-acc_val_mir_mean  = mean(accuracy_val_mir,2);
-acc_val_mfcc_mean = mean(accuracy_val_mfcc,2);
-acc_val_comb_mean = mean(accuracy_val_comb,2);
 
-[~,ind]=max(acc_act_mir_mean);  k_nn(1) = (ind-1)*2+1;
-[~,ind]=max(acc_act_mfcc_mean); k_nn(2) = (ind-1)*2+1;
-[~,ind]=max(acc_act_comb_mean); k_nn(3) = (ind-1)*2+1;
-[~,ind]=max(acc_val_mir_mean);  k_nn(4) = (ind-1)*2+1;
-[~,ind]=max(acc_val_mfcc_mean); k_nn(5) = (ind-1)*2+1;
-[~,ind]=max(acc_val_comb_mean); k_nn(6) = (ind-1)*2+1;
+acc_activ_mir_knn = mean(accuracy_activ_mir,2);   acc_activ_mfcc_knn = mean(accuracy_activ_mfcc,2);    acc_activ_comb_knn = mean(accuracy_activ_comb,2);
+acc_val_mir_knn   = mean(accuracy_val_mir,2);     acc_val_mfcc_knn   = mean(accuracy_val_mfcc,2);      acc_val_comb_knn   = mean(accuracy_val_comb,2);
+pre_activ_mir_knn = mean(precision_activ_mir,2);  pre_activ_mfcc_knn = mean(precision_activ_mfcc,2);   pre_activ_comb_knn = mean(precision_activ_comb,2);
+pre_val_mir_knn   = mean(precision_val_mir,2);    pre_val_mfcc_knn   = mean(precision_val_mfcc,2);     pre_val_comb_knn   = mean(precision_val_comb,2);
+rec_activ_mir_knn = mean(recall_activ_mir,2);     rec_activ_mfcc_knn = mean(recall_activ_mfcc,2);      rec_activ_comb_knn = mean(recall_activ_comb,2);
+rec_val_mir_knn   = mean(recall_val_mir,2);       rec_val_mfcc_knn   = mean(recall_val_mfcc,2);        rec_val_comb_knn   = mean(recall_val_comb,2);
+f1_sc_activ_mir_knn = mean(f1_score_activ_mir,2); f1_sc_activ_mfcc_knn = mean(f1_score_activ_mfcc,2);  f1_sc_activ_comb_knn = mean(f1_score_activ_comb,2);
+f1_sc_val_mir_knn   = mean(f1_score_val_mir,2);   f1_sc_val_mfcc_knn   = mean(f1_score_val_mfcc,2);    f1_sc_val_comb_knn   = mean(f1_score_val_comb,2);
 
-
-%activation
-[acc_activ_mir_knn, prec_activ_mir_knn, rec_activ_mir_knn, f1_sc_activ_mir_knn]  = kNN_classifier(mir1_train, mir1_test, 1,[],[],k_nn(1));
-[acc_activ_mfcc_knn,prec_activ_mfcc_knn,rec_activ_mfcc_knn,f1_sc_activ_mfcc_knn] = kNN_classifier(mfcc1_train,mfcc1_test,1,[],[],k_nn(2));
-[acc_activ_comb_knn,prec_activ_comb_knn,rec_activ_comb_knn,f1_sc_activ_comb_knn] = kNN_classifier(comb1_train,comb1_test,1,[],[],k_nn(3));
-
-%valence
-[acc_val_mir_knn, prec_val_mir_knn, recall_val_mir_knn, f1_sc_val_mir_knn]  = kNN_classifier(mir2_train, mir2_test ,1,[],[],k_nn(4));
-[acc_val_mfcc_knn,prec_val_mfcc_knn,recall_val_mfcc_knn,f1_sc_val_mfcc_knn] = kNN_classifier(mfcc2_train,mfcc2_test,1,[],[],k_nn(5));
-[acc_val_comb_knn,prec_val_comb_knn,recall_val_comb_knn,f1_sc_val_comb_knn] = kNN_classifier(comb2_train,comb2_test,1,[],[],k_nn(6));
 
 %% Step 13 - Bayes Classifier
 accuracy_activ_mir = [] ; precision_activ_mir = [] ; recall_activ_mir = [] ; f1_score_activ_mir = []; accuracy_activ_mfcc = [] ; precision_activ_mfcc = [] ; recall_activ_mfcc = [] ; f1_score_activ_mfcc = []; accuracy_activ_comb = [] ; precision_activ_comb = [] ; recall_activ_comb = [] ; f1_score_activ_comb = [];
-accuracy_val_mir = [] ; precision_val_mir = [] ; recall_val_mir = [] ; f1_score_val_mir = []; accuracy_val_mfcc = [] ; precision_val_mfcc = [] ; recall_val_mfcc = [] ; f1_score_val_mfcc = []; accuracy_val_comb = [] ; precision_val_comb = [] ; recall_val_comb = [] ; f1_score_val_comb = [];
+accuracy_val_mir = []   ; precision_val_mir = []   ; recall_val_mir = []   ; f1_score_val_mir = []  ; accuracy_val_mfcc = []   ; precision_val_mfcc = []   ; recall_val_mfcc = []   ; f1_score_val_mfcc = []  ; accuracy_val_comb = []   ; precision_val_comb = []   ; recall_val_comb = []   ; f1_score_val_comb = [];
 
 for k_fold=1:1:3
     %activation
     [mir1_train,mir1_test]= SplTrainTestData(mir1,0.2);
     [mfcc1_train,mfcc1_test]= SplTrainTestData(mfcc1,0.2);
     [comb1_train,comb1_test]= SplTrainTestData(comb1,0.2);
-    % indices1 = crossvalind('KFold',size(mir1_train,1),3);
 
     %valence
     [mir2_train,mir2_test]= SplTrainTestData(mir2,0.2);
     [mfcc2_train,mfcc2_test]= SplTrainTestData(mfcc2,0.2);
     [comb2_train,comb2_test]= SplTrainTestData(comb2,0.2);
-    % indices2 = crossvalind('KFold',size(mir2_train,1),3);
 
     %activation
     [accuracy_activ_mir(k_fold), precision_activ_mir(k_fold), recall_activ_mir(k_fold), f1_score_activ_mir(k_fold) ] = bayes_classifier(mir1_train, mir1_test);
@@ -413,43 +396,40 @@ for i=1:1:size(dims,2)
     %activation
     pca_comb1 = [comb1(:,1) ppca(comb1(:,2:end)',dims(i))];
     [comb1_train,comb1_test]= SplTrainTestData(pca_comb1,0.2);
-    indices1 = crossvalind('KFold',size(comb1_train,1),3);
 
     %valence
     pca_comb2 = [comb2(:,1) ppca(comb2(:,2:end)',dims(i))];
     [comb2_train,comb2_test]= SplTrainTestData(pca_comb2,0.2);
-    indices2 = crossvalind('KFold',size(comb2_train,1),3);
 
     % PCA+kNN
     accuracy_activ_comb = [] ; precision_activ_comb = [] ; recall_activ_comb = [] ; f1_score_activ_comb = [];
-    accuracy_val_comb = [] ; precision_val_comb = [] ; recall_val_comb = [] ; f1_score_val_comb = [];
+    accuracy_val_comb = []   ; precision_val_comb = []   ; recall_val_comb = []   ; f1_score_val_comb = [];
 
     cnt = 0;
     for k_nn=1:2:13
         cnt=cnt+1;
         for k_fold=1:1:3
             %activation
-            [accuracy_activ_comb(cnt,k_fold),precision_activ_comb(cnt,k_fold),recall_activ_comb(cnt,k_fold),f1_score_activ_comb(cnt,k_fold)] = kNN_classifier(comb1_train,[],0,indices1,k_fold,k_nn);
+            [accuracy_activ_comb(cnt,k_fold),precision_activ_comb(cnt,k_fold),recall_activ_comb(cnt,k_fold),f1_score_activ_comb(cnt,k_fold)] = kNN_classifier(comb1_train,comb1_test,k_nn);
             %valence
-            [accuracy_val_comb(cnt,k_fold),precision_val_comb(cnt,k_fold),recall_val_comb(cnt,k_fold),f1_score_val_comb(cnt,k_fold)] = kNN_classifier(comb2_train,[],0,indices2,k_fold,k_nn);
-
+            [accuracy_val_comb(cnt,k_fold),precision_val_comb(cnt,k_fold),recall_val_comb(cnt,k_fold),f1_score_val_comb(cnt,k_fold)] = kNN_classifier(comb2_train,comb2_test,k_nn);
         end
     end
-    % keep k_nn that maximizes accuracy on training set, so as to test in on test set
-    acc_act_comb_mean = mean(accuracy_activ_comb,2);
-    acc_val_comb_mean = mean(accuracy_val_comb,2);
+    
+    acc_activ_comb_knn_pca(dim,:) = mean(accuracy_activ_comb,2);
+    acc_val_comb_knn_pca(dim,:)   = mean(accuracy_val_comb,2);
+    pre_activ_comb_knn_pca(dim,:) = mean(precision_activ_comb,2);
+    pre_val_comb_knn_pca(dim,:)   = mean(precision_val_comb,2);
+    rec_activ_comb_knn_pca(dim,:) = mean(recall_activ_comb,2);
+    rec_val_comb_knn_pca(dim,:)   = mean(recall_val_comb,2);
+    f1_sc_activ_comb_knn_pca(dim,:) = mean(f1_score_activ_comb,2);
+    f1_sc_val_comb_knn_pca(dim,:)   = mean(f1_score_val_comb,2);
 
-    [~,ind]=max(acc_act_comb_mean); k_nn(1) = (ind-1)*2+1;
-    [~,ind]=max(acc_val_comb_mean); k_nn(2) = (ind-1)*2+1;
-
-    %activation
-    [acc_activ_comb_knn_pca(dim),precision_activ_comb_knn_pca(dim),recall_activ_comb_knn_pca(dim),f1_score_activ_comb_knn_pca(dim)] = kNN_classifier(comb1_train,comb1_test,1,[],[],k_nn(1));
-    %valence
-    [acc_val_comb_knn_pca(dim),  precision_val_comb_knn_pca(dim),  recall_val_comb_knn_pca(dim),  f1_score_val_comb_knn_pca(dim)]   = kNN_classifier(comb2_train,comb2_test,1,[],[],k_nn(2));
-
+    
+    
     % PCA+Bayes
     accuracy_activ_comb = [] ; precision_activ_comb = [] ; recall_activ_comb = [] ; f1_score_activ_comb = [];
-    accuracy_val_comb = [] ; precision_val_comb = [] ; recall_val_comb = [] ; f1_score_val_comb = [];
+    accuracy_val_comb = []   ; precision_val_comb = []   ; recall_val_comb = []   ; f1_score_val_comb = [];
 
     for k_fold=1:1:3
         %activation

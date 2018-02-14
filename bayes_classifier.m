@@ -1,17 +1,12 @@
 function [accuracy,precision,recall,f1_score] = bayes_classifier(curr_train,curr_test)
-%     curr_ind1 = find(curr_ind~= k_fold);
-%     curr_ind2 = find(curr_ind== k_fold);
-%     curr_train = curr_data(curr_ind1,:);
-%     curr_eval = curr_data(curr_ind2,:);
-
     %following will be used in naive bayes classifier 
     %two classes 1 and -1 (-1 is always the second to come)
-    a_priori1(1) = sum(curr_train(:,1)==1)/size(curr_train,1);
-    a_priori1(2) = sum(curr_train(:,1)==-1)/size(curr_train,1);
+    a_priori(1) = sum(curr_train(:,1)==1)/size(curr_train,1);
+    a_priori(2) = sum(curr_train(:,1)==-1)/size(curr_train,1);
     avg_all = avg_calc(curr_train);
 
     diagvar = var_calc(curr_train);
-    [C,~] = bayes_class(curr_test,avg_all,diagvar,a_priori1);
+    [C,~] = bayes_class(curr_test,avg_all,diagvar,a_priori);
 
     TP = C(1,1);
     FP = C(1,2);
