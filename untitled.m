@@ -459,7 +459,15 @@ WekaDataPrep('activation','MIR',mir1,fnames_mir);
 WekaDataPrep('valence','MIR',mir2,fnames_mir);
 
 %step7 data
-fnames_mfcc = fieldnames(features(1).mfcc_related); fnames_mfcc = repelem(fnames_mfcc,13); % for mfcc features
+fnames_mfcc = fieldnames(features(1).mfcc_related); %fnames_mfcc = repelem(fnames_mfcc,13); % for mfcc features
+cnt=0;
+for i=1:1:size(fnames_mfcc,1)
+    cnt=cnt+1;
+    for j=1:1:13
+        temp{13*(cnt-1)+j} = [fnames_mfcc{i},'_',num2str(j)];
+    end
+end
+fnames_mfcc = temp';
 WekaDataPrep('activation','MFCC',mfcc1,fnames_mfcc);
 WekaDataPrep('valence','MFCC',mfcc2,fnames_mfcc);
 
