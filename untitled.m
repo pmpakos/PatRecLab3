@@ -1,11 +1,12 @@
 clear;close all;clc;warning off;
+tic
 % %% PRELAB
 % %% Step 1 - Pre-process Data
 % basepath = './PRcourse_Lab3_data/MusicFileSamples/';
 % music_contents = folder_load(basepath);
 % 
 % for i=1:1:size(music_contents,1)
-%     cname = music_contents(i).name;
+%     cname = ['file',num2str(i),'.wav'];
 %     full_name = strcat(basepath,cname);
 %     [stereo,Fs] = audioread(full_name);
 %     
@@ -112,6 +113,7 @@ clear;close all;clc;warning off;
 % % music_contents = folder_load(basepath);
 % 
 % for i=1:1:size(beatles,2)
+%     i
 %     curr_track = mirframe(beatles{i});
 %     
 %     % 1) Auditory Roughness
@@ -162,6 +164,7 @@ clear;close all;clc;warning off;
 % 
 % %% Step 7 - MFCC Extraction
 % for i=1:1:size(beatles,2)
+%     i
 %     curr_track = mirframe(beatles{i}, 0.025, 's' ,0.01, 's');
 %     
 %     mfcc = mirgetdata(mirmfcc(curr_track, 'Bands', 26, 'Rank', 1:13))';
@@ -465,3 +468,4 @@ WekaDataPrep('valence','Combined',comb2,fnames_comb);
 
 %% Step 16 - Weka Classification Algorithms
 %% Step 17 - 
+toc
