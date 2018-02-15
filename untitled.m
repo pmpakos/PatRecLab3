@@ -109,7 +109,6 @@ clear;close all;clc;warning off;
 % title('Histogram of Labels (averaged)');
 % saveas(gcf,'histogram_avg.png');
 % 
-% 
 % %% Step 6 - MIR Toolbox Feature Extraction
 % addpath(genpath('./MIRtoolbox1.7'))
 % basepath = './PRcourse_Lab3_data/MonoSamples/';
@@ -135,16 +134,17 @@ clear;close all;clc;warning off;
 %     rough_mean(3) = mean(rough_med_mi); 
 %     
 %     % 2) Rythmic Periodicity Along Auditory Channels
-%     fluctuation = mirgetdata(mirsum(mirfluctuation(curr_track)));
+%     fluctuation = mirgetdata(mirfluctuation(curr_track, 'Summary'));
 %     fluct_max = max(fluctuation);
 %     fluct_mean = mean(fluctuation);
 %     
 %     % 3) Key Clarity
-%     keys = mirgetdata(mirkey(curr_track));
+%     [k,ks] = mirkey(curr_track,'Frame');
+%     keys = mirgetdata(ks);
 %     key_mean = mean(keys);
 % 
 %     % 4) Modality
-%     mode = mirgetdata(mirmode(curr_track));
+%     mode = mirgetdata(mirmode(curr_track,'Frame'));
 %     modality = mean(mode);
 % 
 %     % 5) Spectral Novelty
@@ -152,7 +152,7 @@ clear;close all;clc;warning off;
 %     sp_nov_mean = mean(snov);
 %     
 %     % 6) Harmonic Change Detection Function (HCDF)
-%     hcdf = mirgetdata(mirhcdf(curr_track));
+%     hcdf = mirgetdata(mirhcdf(curr_track, 'Frame', 0.5, 's', 0.2));
 %     hcdf_mean = mean(hcdf);
 %     
 %     features(i).rough_mean1 = rough_mean(1);
@@ -167,6 +167,8 @@ clear;close all;clc;warning off;
 %     features(i).hcdf_mean = hcdf_mean;
 %     clc;
 % end
+% 
+% 
 % 
 % %% Step 7 - MFCC Extraction
 % for i=1:1:size(music_contents,1)
@@ -192,14 +194,16 @@ clear;close all;clc;warning off;
 %     mfcc_deltadelta  = sort(mfcc_deltadelta,2);
 %     
 %     perc = round(0.1*size(mfcc,1));
+%     perc2 = round(0.1*size(mfcc_delta,1));
+%     perc3 = round(0.1*size(mfcc_deltadelta,1));
 %     
 %     mfcc_mean_low = mean(mfcc(1:perc,:));
-%     mfcc_delta_mean_low = mean(mfcc_delta(1:perc,:));
-%     mfcc_deltadelta_mean_low = mean(mfcc_deltadelta(1:perc,:));
+%     mfcc_delta_mean_low = mean(mfcc_delta(1:perc2,:));
+%     mfcc_deltadelta_mean_low = mean(mfcc_deltadelta(1:perc3,:));
 % 
 %     mfcc_mean_high = mean(mfcc(end-perc:end,:));
-%     mfcc_delta_mean_high = mean(mfcc_delta(end-perc:end,:));
-%     mfcc_deltadelta_mean_high = mean(mfcc_deltadelta(end-perc:end,:));
+%     mfcc_delta_mean_high = mean(mfcc_delta(end-perc2:end,:));
+%     mfcc_deltadelta_mean_high = mean(mfcc_deltadelta(end-perc3:end,:));
 %     
 %     mfcc_related.mfcc_mean = mfcc_mean;
 %     mfcc_related.mfcc_delta_mean = mfcc_delta_mean;
@@ -221,44 +225,14 @@ clear;close all;clc;warning off;
 %     clc;
 % end
 % 
-% 
 % %% Step 8 - 1st lab classification algorithms
 % %% Step 9 - Weka Installation
-
-
-% load matlab.mat
 % %% LAB
 % %% Step 10 
+% load matlab3.mat
 % 
 % act_remove = [];
 % val_remove = [];
-% % for i=1:1:size(features,2)
-% %     final_data(i).activation = activation(i);
-% %     final_data(i).valence = valence(i);
-% %     final_data(i).features = features(i);
-% %     
-% %     if (final_data(i).activation > 3)
-% %         final_data(i).activation = 1;
-% %     elseif (final_data(i).activation < 3)
-% %         final_data(i).activation = -1;
-% %     else
-% %         final_data(i).activation = 0;
-% %         act_remove = [act_remove i];
-% %     end
-% %     
-% %     if (final_data(i).valence> 3)
-% %         final_data(i).valence = 1;
-% %     elseif (final_data(i).valence < 3)
-% %         final_data(i).valence = -1;
-% %     else
-% %         final_data(i).valence = 0;
-% %         val_remove = [val_remove i];
-% %     end
-% % end
-% % tot_remove = unique([act_remove val_remove]);
-% % final_data(tot_remove) = [];
-% 
-% 
 % for i=1:1:size(features,2)
 %     final_data1(i).activation = activation(i);
 %     final_data1(i).mir = [features(i).rough_mean1 features(i).rough_mean2 features(i).rough_mean3 features(i).rough_std features(i).fluct_max features(i).fluct_mean features(i).key_mean features(i).modality features(i).sp_nov_mean features(i).hcdf_mean];
@@ -290,25 +264,18 @@ clear;close all;clc;warning off;
 % final_data1(act_remove) = [];
 % final_data2(val_remove) = [];
 % 
-% 
-% %% Step 11
+% %% Step 11 - Features Preparation
 % for i=1:1:size(final_data1,2)
 %     mir1(i,:) = [final_data1(i).activation final_data1(i).mir];
 %     mfcc1(i,:) = [final_data1(i).activation final_data1(i).mfcc];
 %     comb1(i,:) = [final_data1(i).activation final_data1(i).combined];
 % end
-% % mir1(:,2:end) = mapminmax(mir1(:,2:end)')';
-% % mir1(:,2:end) = mapstd(mir1(:,2:end)')';
 % 
 % for i=1:1:size(final_data2,2)
 %     mir2(i,:) = [final_data2(i).valence final_data2(i).mir];
 %     mfcc2(i,:) = [final_data2(i).valence final_data2(i).mfcc];
 %     comb2(i,:) = [final_data2(i).valence final_data2(i).combined];
 % end
-% % mir2(:,2:end) = mapminmax(mir2(:,2:end)')';
-% % mir2(:,2:end) = mapstd(mir2(:,2:end)')';
-% 
-% 
 % 
 % %% Step 12 - kNN Classifier
 % accuracy_activ_mir = [] ; precision_activ_mir = [] ; recall_activ_mir = [] ; f1_score_activ_mir = []; accuracy_activ_mfcc = [] ; precision_activ_mfcc = [] ; recall_activ_mfcc = [] ; f1_score_activ_mfcc = []; accuracy_activ_comb = [] ; precision_activ_comb = [] ; recall_activ_comb = [] ; f1_score_activ_comb = [];
@@ -385,8 +352,6 @@ clear;close all;clc;warning off;
 % f1_sc_activ_mir_bayes = mean(f1_score_activ_mir); f1_sc_activ_mfcc_bayes = mean(f1_score_activ_mfcc);  f1_sc_activ_comb_bayes = mean(f1_score_activ_comb);
 % f1_sc_val_mir_bayes   = mean(f1_score_val_mir);   f1_sc_val_mfcc_bayes   = mean(f1_score_val_mfcc);    f1_sc_val_comb_bayes   = mean(f1_score_val_comb);
 % 
-% 
-% 
 % %% Step 14 - PCA
 % dims = [4, 18, 25, 40, 55];
 % 
@@ -395,12 +360,11 @@ clear;close all;clc;warning off;
 %     dim=dim+1; 
 %     %activation
 %     pca_comb1 = [comb1(:,1) ppca(comb1(:,2:end)',dims(i))];
-%     [comb1_train,comb1_test]= SplTrainTestData(pca_comb1,0.2);
 % 
 %     %valence
 %     pca_comb2 = [comb2(:,1) ppca(comb2(:,2:end)',dims(i))];
-%     [comb2_train,comb2_test]= SplTrainTestData(pca_comb2,0.2);
 % 
+%     
 %     % PCA+kNN
 %     accuracy_activ_comb = [] ; precision_activ_comb = [] ; recall_activ_comb = [] ; f1_score_activ_comb = [];
 %     accuracy_val_comb = []   ; precision_val_comb = []   ; recall_val_comb = []   ; f1_score_val_comb = [];
@@ -409,6 +373,11 @@ clear;close all;clc;warning off;
 %     for k_nn=1:2:13
 %         cnt=cnt+1;
 %         for k_fold=1:1:3
+%             %activation
+%             [comb1_train,comb1_test]= SplTrainTestData(pca_comb1,0.2);
+%             %valence
+%             [comb2_train,comb2_test]= SplTrainTestData(pca_comb2,0.2);
+% 
 %             %activation
 %             [accuracy_activ_comb(cnt,k_fold),precision_activ_comb(cnt,k_fold),recall_activ_comb(cnt,k_fold),f1_score_activ_comb(cnt,k_fold)] = kNN_classifier(comb1_train,comb1_test,k_nn);
 %             %valence
@@ -450,9 +419,8 @@ clear;close all;clc;warning off;
 %     f1_sc_val_comb_bayes_pca(dim)   = mean(f1_score_val_comb);
 % end
 
-load 'matlab2.mat';
+load matlab3.mat
 %% Step 15 - Weka Data Preparation
-
 %step6 data
 fnames_mir  = fieldnames(features); fnames_mir {11} = []; fnames_mir = fnames_mir (~cellfun('isempty',fnames_mir)); %for mir features
 WekaDataPrep('activation','MIR',mir1,fnames_mir);
@@ -478,5 +446,4 @@ WekaDataPrep('valence','Combined',comb2,fnames_comb);
 
 
 %% Step 16 - Weka Classification Algorithms
-
 %% Step 17 - 
